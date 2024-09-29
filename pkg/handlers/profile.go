@@ -9,7 +9,6 @@ import (
 )
 
 var _ http.Handler = &profileHandler{}
-var profileTTL = 3600
 
 type profileHandler struct {
 	logger      *zap.Logger
@@ -24,11 +23,13 @@ func NewProfileHandler(logger *zap.Logger, mysqlclient database.Database) *profi
 }
 
 func (handler *profileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	var TTL = 60
+	var resp = map[string]interface{}{}
 	userInfo, err := utils.AuthenticateUser(r.Context(), handler.logger, handler.mysqlclient)
 	if err != nil {
 		resp["err"] = "please sign in to access this page"
 		handler.logger.Warn("unauthorized user")
-		apiResponse(w, GetErrorResponseBytes(resp["err"], profileTTL, nil), http.StatusUnauthorized)
+		apiResponse(w, GetErrorResponseBytes(resp["err"], TTL, nil), http.StatusUnauthorized)
 		return
 	}
 	resp["id"] = userInfo.ID
@@ -37,5 +38,5 @@ func (handler *profileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	resp["email"] = userInfo.Email
 	resp["phone"] = userInfo.Phone
 	resp["edu_institute"] = userInfo.EduInstitute
-	apiResponse(w, GetSuccessResponse(resp, profileTTL), http.StatusOK)
+	apiResponse(w, GetSuccessResponse(resp, TTL), http.StatusOK)
 }

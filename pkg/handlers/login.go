@@ -27,6 +27,8 @@ func NewLoginHandler(logger *zap.Logger, mysqlclient database.Database) *loginHa
 func (handler *loginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		login *model.LoginCredentials
+		TTL   = 60
+		resp  = map[string]interface{}{}
 	)
 
 	if err := json.NewDecoder(r.Body).Decode(&login); err != nil {
@@ -76,7 +78,9 @@ func (handler *loginHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				resp["phone"] = loginnow.Phone
 				resp["edu_institute"] = loginnow.EduInstitute
 				resp["jwt_token"] = jwt
+				resp["message"] = "login successfull"
 				apiResponse(w, GetSuccessResponse(resp, TTL), http.StatusOK)
+				handler.logger.Info("login successfull")
 			}
 		}
 	}

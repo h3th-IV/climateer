@@ -30,6 +30,8 @@ func NewRegistrationHandler(logger *zap.Logger, mysqlclient database.Database) *
 func (handler *registerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var (
 		RegisterUser *model.Registration
+		TTL          = 60
+		resp         = map[string]interface{}{}
 	)
 
 	if err := json.NewDecoder(r.Body).Decode(&RegisterUser); err != nil {
@@ -89,5 +91,7 @@ func (handler *registerHandler) ServeHTTP(w http.ResponseWriter, r *http.Request
 	resp["phone"] = RegisterUser.Phone
 	resp["edu_institute"] = RegisterUser.EduInstitute
 	resp["session_key"] = newSessionKey
+	resp["message"] = "user registered successfully"
 	apiResponse(w, GetSuccessResponse(resp, TTL), http.StatusOK)
+	handler.logger.Error("user registered successfully")
 }

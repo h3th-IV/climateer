@@ -10,9 +10,6 @@ import (
 	"time"
 )
 
-var TTL = 60
-var resp = map[string]interface{}{}
-
 type response struct {
 	Data    interface{} `json:"data,omitempty"`
 	Err     string      `json:"err,omitempty"`

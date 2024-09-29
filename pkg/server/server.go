@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/gorilla/mux"
+	"github.com/h3th-IV/climateer/pkg/middleware"
 	"github.com/h3th-IV/climateer/pkg/utils"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
@@ -18,8 +19,7 @@ type GracefulShutdownServer struct {
 	LoginHandler    http.Handler // login
 	ProfileHandler  http.Handler // profile
 	HomeHandler     http.Handler
-
-	CommentHandler http.Handler //make comments
+	UserMeasurement http.Handler //for collecting User measurements
 
 	httpServer     *http.Server
 	WriteTimeout   time.Duration
@@ -39,8 +39,11 @@ func (server *GracefulShutdownServer) getRouter() *mux.Router {
 		AllowCredentials: true,
 	})
 	middleWareChain := alice.New(utils.RequestLogger, cors.Handler)
-	// authRoute := alice.New(middleware.AuthRoute)
+	authRoute := alice.New(middleware.AuthRoute)
 	//authed routes
+	router.Handle("/users/profile", authRoute.ThenFunc(server.ProfileHandler.ServeHTTP)).Methods(http.MethodGet)
+	router.Handle("/users/measurements", authRoute.ThenFunc(server.UserMeasurement.ServeHTTP)).Methods(http.MethodPost)
+
 	router.Handle("/register", server.RegisterHandler).Methods(http.MethodPost)
 	router.Handle("/login", server.LoginHandler).Methods(http.MethodPost)
 	router.Handle("/", server.HomeHandler)

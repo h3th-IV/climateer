@@ -10,3 +10,42 @@ CREATE TABLE Users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,   -- Timestamp when the record was created
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Timestamp for last update
 );
+
+
+-- Create UserMeasurements table
+CREATE TABLE UserMeasurements (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT,
+    country_id INT,
+    indicator_id INT,
+    year INT,
+    value FLOAT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(id),
+    FOREIGN KEY (country_id) REFERENCES Countries(id),
+    FOREIGN KEY (indicator_id) REFERENCES Indicators(id)
+);
+
+-- Create Countries table
+CREATE TABLE Countries (
+    id INT PRIMARY KEY,
+    country_code VARCHAR(3) UNIQUE,
+    country_name VARCHAR(255)
+);
+
+-- Create Indicators table
+CREATE TABLE Indicators (
+    id INT PRIMARY KEY,
+    Indicator VARCHAR(255) UNIQUE
+);
+
+-- Create Measurements table
+CREATE TABLE Measurements (
+    id INT PRIMARY KEY,
+    country_id INT,
+    indicator_id INT,
+    year INT,
+    value FLOAT,
+    FOREIGN KEY (country_id) REFERENCES Countries(id),
+    FOREIGN KEY (indicator_id) REFERENCES Indicators(id)
+);

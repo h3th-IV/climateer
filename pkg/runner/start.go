@@ -90,6 +90,9 @@ func (runner *StartRunner) Run(c *cli.Context) error {
 		HTTPListenAddr:  runner.ListenAddr,
 		RegisterHandler: handlers.NewRegistrationHandler(logger, mysqlDatabaseClient),
 		LoginHandler:    handlers.NewLoginHandler(logger, mysqlDatabaseClient),
+		HomeHandler:     handlers.NewHomeHandler(logger, mysqlDatabaseClient),
+		ProfileHandler:  handlers.NewProfileHandler(logger, mysqlDatabaseClient),
+		UserMeasurement: handlers.NewMeasurementHandler(logger, mysqlDatabaseClient),
 	}
 	server.Start()
 	return nil
