@@ -20,6 +20,7 @@ type GracefulShutdownServer struct {
 	ProfileHandler  http.Handler // profile
 	HomeHandler     http.Handler
 	UserMeasurement http.Handler //for collecting User measurements
+	Era5            http.Handler //for collecting data using cdsapi
 
 	httpServer     *http.Server
 	WriteTimeout   time.Duration
@@ -43,6 +44,7 @@ func (server *GracefulShutdownServer) getRouter() *mux.Router {
 	//authed routes
 	router.Handle("/users/profile", authRoute.ThenFunc(server.ProfileHandler.ServeHTTP)).Methods(http.MethodGet)
 	router.Handle("/users/measurements", authRoute.ThenFunc(server.UserMeasurement.ServeHTTP)).Methods(http.MethodPost)
+	router.Handle("/era5", authRoute.ThenFunc(server.Era5.ServeHTTP)).Methods(http.MethodPost)
 
 	router.Handle("/register", server.RegisterHandler).Methods(http.MethodPost)
 	router.Handle("/login", server.LoginHandler).Methods(http.MethodPost)

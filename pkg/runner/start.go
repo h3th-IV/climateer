@@ -78,7 +78,8 @@ func (runner *StartRunner) Run(c *cli.Context) error {
 	}
 
 	if err != nil {
-		utils.Logger.Info("err connecting to database after multiple tries")
+		tries := fmt.Sprintf("err connecting to database after multiple (%d) tries", maxRetries)
+		utils.Logger.Info(tries)
 		return fmt.Errorf("unable to open connection to MySQL Server: %s", err.Error())
 	}
 
@@ -93,6 +94,7 @@ func (runner *StartRunner) Run(c *cli.Context) error {
 		HomeHandler:     handlers.NewHomeHandler(logger, mysqlDatabaseClient),
 		ProfileHandler:  handlers.NewProfileHandler(logger, mysqlDatabaseClient),
 		UserMeasurement: handlers.NewMeasurementHandler(logger, mysqlDatabaseClient),
+		Era5:            handlers.NewEra5Handler(logger, mysqlDatabaseClient),
 	}
 	server.Start()
 	return nil

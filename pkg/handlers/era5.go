@@ -49,7 +49,9 @@ func (handler *era5Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		apiResponse(w, GetErrorResponseBytes(resp, TTL, nil), http.StatusBadRequest)
 		return
 	}
-	cmd := exec.Command("python3", "reanalysis.py", era5_request.Variable, era5_request.Year, era5_request.Month, era5_request.Day, era5_request.Time, era5_request.Area)
+	relative_path, _ := os.Getwd()
+	path := fmt.Sprintf(relative_path + "/pkg/handlers/reanalysis.py")
+	cmd := exec.Command("python", path, era5_request.Variable, era5_request.Year, era5_request.Month, era5_request.Day, era5_request.Time, era5_request.Area)
 	output, err := cmd.Output()
 	if err != nil {
 		resp["err"] = "unable to proceed"
@@ -57,13 +59,13 @@ func (handler *era5Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		apiResponse(w, GetErrorResponseBytes(resp, TTL, nil), http.StatusInternalServerError)
 		return
 	}
+
 	if err := json.Unmarshal(output, &era5_response); err != nil {
 		resp["err"] = "unable to process response"
 		handler.logger.Error("err parsing api response", zap.Error(err))
 		apiResponse(w, GetErrorResponseBytes(resp, TTL, nil), http.StatusInternalServerError)
 		return
 	}
-
 	publicDir := "./data"
 	err = os.MkdirAll(publicDir, os.ModePerm)
 	if err != nil {
@@ -83,8 +85,9 @@ func (handler *era5Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	era5_response.FileURL = fmt.Sprintf("http://localhost:8080/files/%s", era5_response.FileName)
+	era5_response.FileURL = fmt.Sprintf("http://localhost:9000/files/%s", era5_response.FileName) //just curl this to download
 	resp["message"] = "Data fetched successfully"
+	resp["file"] = era5_response.FileURL
 	apiResponse(w, GetSuccessResponse(resp, TTL), http.StatusOK)
 	handler.logger.Info("Data fetched Successfully")
 }
